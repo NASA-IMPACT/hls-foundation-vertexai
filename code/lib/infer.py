@@ -3,7 +3,8 @@ import mmcv
 import mmengine
 import torch
 
-from .compose import Compose
+
+from mmseg.datasets.pipelines import Compose
 
 from mmcv.parallel import collate, scatter
 from mmcv.runner import load_checkpoint
