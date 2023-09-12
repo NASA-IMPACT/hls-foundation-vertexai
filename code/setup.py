@@ -8,7 +8,7 @@ setup(
     packages=['geospatial_fm'],
     license="Apache 2",
     install_requires=[
-        "mmsegmentation @ git+https://github.com/open-mmlab/mmsegmentation.git@186572a3ce64ac9b6b37e66d58c76515000c3280",
+        "mmsegmentation==0.30.0",
         "urllib3==1.26.12",
         "rasterio",
         "tifffile",
