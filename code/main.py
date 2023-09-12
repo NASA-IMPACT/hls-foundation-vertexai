@@ -1,67 +1,27 @@
-from fastapi import FastAPI, Request
-
+import boto3
 import joblib
 import json
 import numpy as np
+import os
 import pickle
-import os
-
-from google.cloud import storage
-from huggingface_hub import huggingface_hub_download
-from preprocess import MySimpleScaler
-from sklearn.datasets import load_iris
-
-
-app = FastAPI()
-gcs_client = storage.Client()
-
-with open('burnscars.pth', 'wb') as burnscars_file, open('flood.pth', 'wb') as flood_file:
-    gcs_client.download_blob_to_file(
-        f"{os.environ['AIP_STORAGE_URI']}/preprocessor.pkl", preprocessor_f
-    )
-    gcs_client.download_blob_to_file(f"{os.environ['AIP_STORAGE_URI']}/model.joblib", model_f)
-
-with open('preprocessor.pkl', 'rb') as f:
-    preprocessor = pickle.load(f)
-
-_class_names = load_iris().target_names
-_model = joblib.load('model.joblib')
-_preprocessor = preprocessor
-
-
-@app.get(os.environ['AIP_HEALTH_ROUTE'], status_code=200)
-def health():
-    return {}
-
-
-@app.post(os.environ['AIP_PREDICT_ROUTE'])
-async def predict(request: Request):
-    body = await request.json()
-
-    instances = body['instances']
-    inputs = np.asarray(instances)
-    preprocessed_inputs = _preprocessor.preprocess(inputs)
-    outputs = _model.predict(preprocessed_inputs)
-
-    return {'predictions': [_class_names[class_num] for class_num in outputs]}
-
-
-import os
-import boto3
 import rasterio
 
-from app.lib.model import Infer
 from app.lib.downloader import Downloader
+from app.lib.model import Infer
 from app.lib.post_process import PostProcess
-from typing import Union
 
 from fastapi import FastAPI, Request
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from fastapi.responses import JSONResponse
+
+from google.cloud import storage
+from huggingface_hub import hf_hub_download
+
 
 BUCKET_NAME = '2023-igarss-tutorial-store'
+
+# gcs_client = storage.Client()
 
 app = FastAPI()
 
@@ -96,13 +56,14 @@ MODEL_CONFIGS = {
     },
 }
 
+print(MODEL_CONFIGS)
 MODELS = {model_name: load_model(model_name) for model_name in MODEL_CONFIGS}
 
 
 def load_model(model_name):
     repo = MODEL_CONFIGS[model_name]['repo']
-    config = huggingface_hub_download(repo, filename=MODEL_CONFIGS[model_name]['config'])
-    model_path = huggingface_hub_download(repo, filename=MODEL_CONFIGS[model_name]['weight'])
+    config = hf_hub_download(repo, filename=MODEL_CONFIGS[model_name]['config'])
+    model_path = hf_hub_download(repo, filename=MODEL_CONFIGS[model_name]['weight'])
     infer = Infer(config, model_path)
     _ = infer.load_model()
     return infer
@@ -126,7 +87,7 @@ def download_file(s3_link, file_name):
     s3.download_file(BUCKET_NAME, object_name, file_name)
 
 
-@app.get(os.environ['AIP_HEALTH_ROUTE'], status_code=200)
+@app.get('/health', status_code=200)
 def health():
     return {'Hello': 'World'}
 
@@ -137,7 +98,7 @@ def list_models():
     return JSONResponse({'models': response})
 
 
-@app.post(os.environ['AIP_PREDICT_ROUTE'])
+@app.post('/infer')
 async def infer_from_model(request: Request):
     body = await request.json()
 
