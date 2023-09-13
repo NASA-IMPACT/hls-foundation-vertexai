@@ -41,4 +41,4 @@ ENV FORCE_CUDA="1"
 
 COPY ./code/ /app/
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "$AIP_HTTP_PORT"]
+CMD uvicorn app.main:app --host 0.0.0.0 --port $AIP_HTTP_PORT
