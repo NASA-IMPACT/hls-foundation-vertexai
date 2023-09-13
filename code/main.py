@@ -56,6 +56,7 @@ MODEL_CONFIGS = {
     },
 }
 
+
 def update_config(config, model_path):
     with open(config, 'r') as config_file:
         config_details = config_file.read()
@@ -74,7 +75,9 @@ def load_model(model_name):
     _ = infer.load_model()
     return infer
 
+
 MODELS = {model_name: load_model(model_name) for model_name in MODEL_CONFIGS}
+
 
 def assumed_role_session():
     client = boto3.client('sts')
@@ -94,7 +97,7 @@ def download_file(s3_link, file_name):
     s3.download_file(BUCKET_NAME, object_name, file_name)
 
 
-@app.get('/health', status_code=200)
+@app.get(os.environ['AIP_HEALTH_ROUTE'], status_code=200)
 def health():
     return {'Hello': 'World'}
 
@@ -105,7 +108,7 @@ def list_models():
     return JSONResponse({'models': response})
 
 
-@app.post('/infer')
+@app.post(os.environ['AIP_PREDICT_ROUTE'])
 async def infer_from_model(request: Request):
     body = await request.json()
 
