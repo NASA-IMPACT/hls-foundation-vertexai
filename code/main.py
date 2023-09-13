@@ -1,4 +1,4 @@
-import boto3
+# import boto3
 import joblib
 import json
 import numpy as np
@@ -7,7 +7,7 @@ import pickle
 import rasterio
 
 from app.lib.downloader import Downloader
-from app.lib.model import Infer
+from app.lib.infer import Infer
 from app.lib.post_process import PostProcess
 
 from fastapi import FastAPI, Request
@@ -56,18 +56,25 @@ MODEL_CONFIGS = {
     },
 }
 
-print(MODEL_CONFIGS)
-MODELS = {model_name: load_model(model_name) for model_name in MODEL_CONFIGS}
+def update_config(config, model_path):
+    with open(config, 'r') as config_file:
+        config_details = config_file.read()
+        updated_config = config_details.replace('<path to pretrained weights>', model_path)
+
+    with open(config, 'w') as config_file:
+        config_file.write(updated_config)
 
 
 def load_model(model_name):
     repo = MODEL_CONFIGS[model_name]['repo']
     config = hf_hub_download(repo, filename=MODEL_CONFIGS[model_name]['config'])
     model_path = hf_hub_download(repo, filename=MODEL_CONFIGS[model_name]['weight'])
+    update_config(config, model_path)
     infer = Infer(config, model_path)
     _ = infer.load_model()
     return infer
 
+MODELS = {model_name: load_model(model_name) for model_name in MODEL_CONFIGS}
 
 def assumed_role_session():
     client = boto3.client('sts')
