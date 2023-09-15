@@ -1,10 +1,12 @@
 # import boto3
+import gc
 import joblib
 import json
 import numpy as np
 import os
 import pickle
 import rasterio
+import torch
 
 from app.lib.downloader import Downloader
 from app.lib.infer import Infer
