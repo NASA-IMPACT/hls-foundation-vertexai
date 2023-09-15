@@ -1,12 +1,13 @@
-import os
-import morecantile
-import requests
-import rasterio
 import json
+import morecantile
+import os
+import rasterio
+import requests
 
 BASE_URL = "https://d1nzvsko7rbono.cloudfront.net"
-REGISTER_ENDPOINT = f"{BASE_URL}/mosaic/register"
 BASE_TILE_URL = "{BASE_URL}/mosaic/tiles/{searchid}/WebMercatorQuad/{z}/{x}/{y}.tif"
+
+REGISTER_ENDPOINT = f"{BASE_URL}/mosaic/register"
 
 TILE_URL = {
     "HLSL30": f"{BASE_TILE_URL}?assets=B02&assets=B03&assets=B04&assets=B05&assets=B06&assets=B07",
@@ -53,6 +54,7 @@ class Downloader:
                 for band in range(profile['count']):
                     index = band + 1
                     new_file.write(raster_file.read(index) * 0.0001, index)
+            raster_file.close()
         else:
             return_filename = ""
         return return_filename
