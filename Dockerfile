@@ -5,7 +5,7 @@ RUN apt-get update && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
     apt install -y python3.9-dev
 
-RUN apt-get update && apt-get install -y libgl1 cuda-libraries-11-5 cuda-nvrtc-11-5 cuda-nvcc-11-5 cuda-cudart-11-5 python3-pip libcudnn8 libcudnn8-dev
+RUN apt-get update && apt-get install -y libgl1 python3-pip
 
 RUN rm -rf /var/lib/apt/lists/*
 
