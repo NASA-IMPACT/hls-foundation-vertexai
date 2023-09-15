@@ -125,7 +125,7 @@ class PostProcess:
                 for index in indices_holder:
                     if computed_polygons[index].intersects(selected_polygon):
                         polygon_indices.remove(index)
-        return np.array(selected_shapes)[selected_indices]
+        return np.array(selected_shapes, dtype='object')[selected_indices]
 
     @classmethod
     def convert_xy_to_latlon(cls, row, col, transform):
