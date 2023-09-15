@@ -1,6 +1,7 @@
 import os
 import morecantile
 import requests
+import rasterio
 import json
 
 BASE_URL = "https://d1nzvsko7rbono.cloudfront.net"
@@ -8,14 +9,14 @@ REGISTER_ENDPOINT = f"{BASE_URL}/mosaic/register"
 BASE_TILE_URL = "{BASE_URL}/mosaic/tiles/{searchid}/WebMercatorQuad/{z}/{x}/{y}.tif"
 
 TILE_URL = {
-    "HLSL30": f"{BASE_TILE_URL}?assets=B01&assets=B03&assets=B04&assets=B05&assets=B06&assets=B07",
-    "HLSS30": f"{BASE_TILE_URL}?assets=B01&assets=B02&assets=B03&assets=B04&assets=B05&assets=B06&assets=B07&assets=B8A&assets=B11&assets=B12",
+    "HLSL30": f"{BASE_TILE_URL}?assets=B02&assets=B03&assets=B04&assets=B05&assets=B06&assets=B07",
+    "HLSS30": f"{BASE_TILE_URL}?assets=B02&assets=B03&assets=B04&assets=B8A&assets=B11&assets=B12",
 }
 
 PROJECTION = "WebMercatorQuad"
 TMS = morecantile.tms.get(PROJECTION)
 ZOOM_LEVEL = 12
-DOWNLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "../../data/")
+DOWNLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "../data")
 
 
 class Downloader:
@@ -45,15 +46,27 @@ class Downloader:
         if response.status_code == 200:
             with open(filename, "wb") as download_file:
                 download_file.write(response.content)
+            raster_file = rasterio.open(filename)
+            profile = raster_file.profile
+            profile['dtype'] = 'float32'
+            with rasterio.open(filename, 'w', **profile) as new_file:
+                for band in range(profile['count']):
+                    index = band + 1
+                    new_file.write(raster_file.read(index) * 0.0001, index)
         else:
             return_filename = ""
         return return_filename
+
+    def mkdir(self, foldername):
+        if not (os.path.exists(foldername)):
+            os.makedirs(foldername)
 
     def download_tiles(self, bounding_box):
         x_tiles, y_tiles = self.tile_indices(bounding_box)
         downloaded_files = list()
         for x_index in range(x_tiles[0], x_tiles[1]):
             for y_index in range(y_tiles[0], y_tiles[1]):
+                self.mkdir(f"{DOWNLOAD_FOLDER}/{self.layer}")
                 filename = f"{DOWNLOAD_FOLDER}/{self.layer}/{self.date}-{x_index}-{y_index}.tif"
                 if os.path.exists(filename):
                     downloaded_files.append(filename)
