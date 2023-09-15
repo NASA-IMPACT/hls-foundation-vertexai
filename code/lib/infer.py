@@ -3,12 +3,11 @@ import mmcv
 import mmengine
 import torch
 
-
-from mmseg.datasets.pipelines import Compose
+from mmseg.datasets.pipelines import Compose, LoadImageFromFile
 
 from mmcv.parallel import collate, scatter
 from mmcv.runner import load_checkpoint
-from mmseg.models import build_segmentor
+from mmseg.apis import init_segmentor
 from .downloader import DOWNLOAD_FOLDER
 
 
@@ -48,8 +47,9 @@ class Infer:
         self.config = mmengine.Config.fromfile(self.config_filename)
         self.config.model.pretrained = None
         self.config.model.train_cfg = None
-        self.model = build_segmentor(self.config.model, test_cfg=self.config.get("test_cfg"))
+
         if self.checkpoint_filename is not None:
+            self.model = init_segmentor(self.config, self.checkpoint_filename, device="cuda:0")
             self.checkpoint = load_checkpoint(
                 self.model, self.checkpoint_filename, map_location="cpu"
             )
@@ -77,12 +77,12 @@ class Infer:
             image_data['seg_prefix'] = DOWNLOAD_FOLDER
             image_data = test_pipeline(image_data)
             data.append(image_data)
-        data = collate(data, samples_per_gpu=len(images))
+        data = collate(data, samples_per_gpu=1)
         if next(self.model.parameters()).is_cuda:
             # scatter to specified GPU
             data = scatter(data, [self.device])[0]
         else:
-            data["img_metas"] = [i.data[0] for i in data["img_metas"]]
+            data["img_metas"] = [i.data[0] for i in list(data["img_metas"])]
 
         # forward the model
         with torch.no_grad():
