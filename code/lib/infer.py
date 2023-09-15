@@ -44,7 +44,7 @@ class Infer:
         self.checkpoint_filename = checkpoint
 
     def load_model(self):
-        self.config = mmengine.Config.fromfile(self.config_filename)
+        self.config = mmcv.Config.fromfile(self.config_filename)
         self.config.model.pretrained = None
         self.config.model.train_cfg = None
 
