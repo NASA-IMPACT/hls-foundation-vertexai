@@ -112,7 +112,7 @@ def list_models():
 async def infer_from_model(request: Request):
     body = await request.json()
 
-    instances = body['instances']
+    instances = body['instances'][0]
     model_id = instances['model_id']
     infer_date = instances['date']
     bounding_box = instances['bounding_box']
