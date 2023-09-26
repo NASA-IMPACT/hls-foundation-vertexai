@@ -5,7 +5,7 @@ RUN apt-get update && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
     apt install -y python3.9-dev
 
-RUN apt-get update && apt-get install -y libgl1 python3-pip
+RUN apt-get update && apt-get install -y libgl1 python3-pip git
 
 RUN rm -rf /var/lib/apt/lists/*
 
@@ -19,9 +19,9 @@ RUN pip3 install imagecodecs
 
 RUN pip3 install torch==1.11.0+cu115 torchvision==0.12.0+cu115 --extra-index-url https://download.pytorch.org/whl/cu115
 
-COPY ./code/geospatial_fm geospatial_fm
-COPY ./code/setup.py setup.py
-RUN pip3 install -e .
+RUN git clone https://github.com/nasa-impact/hls-foundation-os.git
+
+RUN cd hls-foundation-os && git checkout 9cdb612 && pip3 install -e .
 
 COPY requirements.txt requirements.txt
 
