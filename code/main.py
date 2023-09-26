@@ -17,9 +17,11 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from functools import partial
 from google.cloud import storage
 from huggingface_hub import hf_hub_download
 
+from multiprocessing import Pool, cpu_count
 
 BUCKET_NAME = '2023-igarss-tutorial-store'
 
@@ -92,11 +94,9 @@ def assumed_role_session():
     )
 
 
-def download_file(s3_link, file_name):
-    session = assumed_role_session()
-    s3 = session.client('s3')
-    object_name = s3_link.replace('s3://', '')
-    s3.download_file(BUCKET_NAME, object_name, file_name)
+def download_files(infer_date, layer, bounding_box):
+    downloader = Downloader(infer_date, layer)
+    return downloader.download_tiles(bounding_box)
 
 
 @app.get(os.environ['AIP_HEALTH_ROUTE'], status_code=200)
@@ -125,10 +125,17 @@ async def infer_from_model(request: Request):
     infer = MODELS[model_id]
     all_tiles = list()
     geojson_list = list()
+    download_infos = list()
 
     for layer in MODEL_CONFIGS[model_id]['collections']:
-        downloader = Downloader(infer_date, layer)
-        all_tiles += downloader.download_tiles(bounding_box)
+        download_infos.append((infer_date, layer, bounding_box))
+
+    pool = Pool(cpu_count() - 1)
+    all_tiles = pool.starmap(download_files, download_infos)
+    all_tiles = [tile for tiles in all_tiles for tile in tiles]
+    pool.close()
+    pool.join()
+
     if all_tiles:
         results = infer.infer(all_tiles)
         transforms = list()
