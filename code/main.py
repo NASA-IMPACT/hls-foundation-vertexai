@@ -52,12 +52,6 @@ MODEL_CONFIGS = {
         'weight': 'burn_scars_Prithvi_100M.pth',
         'collections': ['HLSS30', 'HLSL30'],
     },
-    'crop_classification': {
-        'config': 'multi_temporal_crop_classification_Prithvi_100M.py',
-        'repo': 'ibm-nasa-geospatial/Prithvi-100M-multi-temporal-crop-classification',
-        'weight': 'multi_temporal_crop_classification_Prithvi_100M.pth',
-        'collections': ['HLSS30', 'HLSL30'],
-    },
 }
 
 
