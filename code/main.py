@@ -6,6 +6,7 @@ import numpy as np
 import os
 import pickle
 import rasterio
+import time
 import torch
 
 from app.lib.downloader import Downloader
@@ -125,11 +126,14 @@ async def infer_from_model(request: Request):
         download_infos.append((infer_date, layer, bounding_box))
 
     pool = Pool(cpu_count() - 1)
+    start_time = time.time()
     all_tiles = pool.starmap(download_files, download_infos)
     all_tiles = [tile for tiles in all_tiles for tile in tiles]
     pool.close()
     pool.join()
+    print("!!! Download Time:", time.time() - start_time)
 
+    start_time = time.time()
     if all_tiles:
         results = infer.infer(all_tiles)
         transforms = list()
@@ -143,8 +147,9 @@ async def infer_from_model(request: Request):
             for geometry in geojson:
                 updated_geometry = PostProcess.convert_geojson(geometry)
                 geojson_list.append(updated_geometry)
+    print("!!! Infer Time:", time.time() - start_time)
     del infer
     gc.collect()
     torch.cuda.empty_cache()
-    final_geojson = {'predictions': {'type': 'FeatureCollection', 'features': geojson_list}}
+    final_geojson = {'predictions': [{'type': 'FeatureCollection', 'features': geojson_list}]}
     return JSONResponse(content=jsonable_encoder(final_geojson))
