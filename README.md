@@ -4,7 +4,9 @@
 This repo deploys the recently published finetuned models based on Harmonized Landsat and Sentinel-2 (HLS) into Google Cloud Platform (GCP)'s Vertex AI. We host the models in Vertex AI's endpoint.
 
 # Steps to deploy:
+
 **Note: These steps are also presented in [the notebook](code/notebooks/deploy_foundation_model.ipynb)**
+
 1. Clone this repository `git clone https://github.com/nasa-impact/hls-foundation-vertexai.git`
 2. Change directory into the cloned repository `cd hls-foundation-vertexai`
 3. [Initialize gcloud](https://cloud.google.com/sdk/docs/initializing)
@@ -55,7 +57,9 @@ endpoint.to_dict()['deployedModels'][0]['id']
 
 ```
 10. Test endpoint
+
 **Note: Replace all <PROJECT_ID> with your project id, and <ENDPOINT_ID> with the output from step 8.**
+
 ```
 # Get inference from the deployed endpoint. Copy over the endpoint id from above and replace <ENDPOINT_ID>, and project id from about to replace <PROJECT_ID>
 ! export ENDPOINT_ID=<ENDPOINT_ID>; export PROJECT_ID=<PROJECT_ID>; export INPUT_DATA_FILE="test.json"; curl \
