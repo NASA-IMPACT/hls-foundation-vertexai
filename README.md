@@ -5,7 +5,7 @@ This repo deploys the recently published finetuned models based on Harmonized La
 
 # Steps to deploy:
 
-**Note: These steps are also presented in [the notebook](code/notebooks/deploy_foundation_model.ipynb)**
+**Note: These steps are also presented in [the notebook](notebooks/IMPACT_SERVIR_HLS_FM_Customer_Container_G4G.ipynb)**
 
 1. Clone this repository `git clone https://github.com/nasa-impact/hls-foundation-vertexai.git`
 2. Change directory into the cloned repository `cd hls-foundation-vertexai`
