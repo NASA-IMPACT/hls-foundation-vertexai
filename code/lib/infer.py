@@ -1,9 +1,8 @@
 import matplotlib.pyplot as plt
 import mmcv
-import mmengine
 import torch
 
-from mmseg.datasets.pipelines import Compose, LoadImageFromFile
+from mmseg.datasets.pipelines import Compose
 
 from mmcv.parallel import collate, scatter
 from mmcv.runner import load_checkpoint

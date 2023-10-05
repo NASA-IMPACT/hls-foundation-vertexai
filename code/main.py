@@ -1,10 +1,5 @@
-# import boto3
 import gc
-import joblib
-import json
-import numpy as np
 import os
-import pickle
 import rasterio
 import time
 import torch
@@ -18,15 +13,9 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from functools import partial
-from google.cloud import storage
 from huggingface_hub import hf_hub_download
 
 from multiprocessing import Pool, cpu_count
-
-BUCKET_NAME = '2023-igarss-tutorial-store'
-
-# gcs_client = storage.Client()
 
 app = FastAPI()
 
@@ -76,17 +65,6 @@ def load_model(model_name):
 
 
 MODELS = {model_name: load_model(model_name) for model_name in MODEL_CONFIGS}
-
-
-def assumed_role_session():
-    client = boto3.client('sts')
-    creds = client.assume_role(RoleArn=ROLE_ARN, RoleSessionName=ROLE_NAME)['Credentials']
-    return boto3.session.Session(
-        aws_access_key_id=creds['AccessKeyId'],
-        aws_secret_access_key=creds['SecretAccessKey'],
-        aws_session_token=creds['SessionToken'],
-        region_name='us-east-1',
-    )
 
 
 def download_files(infer_date, layer, bounding_box):
