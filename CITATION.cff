@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Gurung"
+  given-names: "Iksha"
+  orcid: "https://orcid.org/0000-0001-5124-8856"
+- family-names: "Ramasubramanian"
+  given-names: "Muthukumaran"
+  orcid: "https://orcid.org/0000-0001-5293-8349"
+- family-names: "Ramasubramanian"
+  given-names: "Muthukumaran"
+  orcid: "https://orcid.org/0000-0001-5293-8349"
+- family-names: "Bhandari"
+  given-names: "Biplov"
+  orcid: "https://orcid.org/0000-0001-6169-8236"
+- family-names: "Mayer"
+  given-names: "Timothy"
+- family-names: "Maskey"
+  given-names: "Manil"
+  orcid: "https://orcid.org/0000-0002-5087-6903"
+- family-names: "Ramachandran"
+  given-names: "Rahul"
+  orcid: "https://orcid.org/0000-0002-0647-1941"
+title: "hls-foundation-vertexai"
+version: 0.0.1
+date-released: 2023-10-05
+url: "https://github.com/NASA-IMPACT/hls-foundation-vertexai"
