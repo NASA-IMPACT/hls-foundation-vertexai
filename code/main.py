@@ -10,7 +10,7 @@ from app.lib.post_process import PostProcess
 
 from fastapi import FastAPI, Request
 from fastapi.encoders import jsonable_encoder
-from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from huggingface_hub import hf_hub_download
